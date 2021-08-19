@@ -62,7 +62,7 @@ def SplitTrainDataAndRandom(xt, yt, per):
     print(per/100)
     return [x_train, y_train], [x_test, y_test]
 
-def GetTrainData(dataList, paramDf):
+def GetTrainData(dataList, paramDf, dataMaxLen):
     ytrain = list()
     y = paramDf[['class']].to_numpy()
     for i in range(len(y)):
@@ -75,7 +75,7 @@ def GetTrainData(dataList, paramDf):
     for i in range(len(dataList)):
         for j in range(len(dataList[i])):
             xtrain.append(dataList[i][j])
-    xtrain = keras.preprocessing.sequence.pad_sequences(xtrain, maxlen =101)
+    xtrain = keras.preprocessing.sequence.pad_sequences(xtrain, maxlen = dataMaxLen)
     xtrain = AxisDataMaxMin(xtrain)
     ########################################################################
 
