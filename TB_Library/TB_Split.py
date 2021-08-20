@@ -43,17 +43,19 @@ def TableTennisDataSplit(df, wave_c, detrens_n = 5, lp_order = 2, bin_c = 100, f
         if ct == -1:
             return None
 
-    cutList = list()
+    # cutList = list()
 
-    for i in np.arange(0,len(ct)-1, 1):
-        cutList.append((ct[i] + ct[i+1]) // 2)
-    cutList = np.array(cutList)
+    # for i in np.arange(0,len(ct)-1, 1):
+    #     cutList.append((ct[i] + ct[i+1]) // 2)
+    # cutList = np.array(cutList)
+
+    cutList = FindWaveWidth(centerData, ct, 3)
 
     axis9Cut = list()
 
-    for i in np.arange(0, len(cutList)-1, 1):
-        head = cutList[i].squeeze()
-        tail = cutList[i+1].squeeze()
+    for i in range(len(cutList)):
+        head = cutList[i][0].squeeze()
+        tail = cutList[i][2].squeeze()
         cutArray = axis9[head: tail,:]
         axis9Cut.append(cutArray)
 
@@ -111,3 +113,36 @@ def FixTrainDataList(paramDf , fixIndex, fixDataList):
                                             fft_f = float(paramDf.loc[fixIndex, 'fft_f']))
     ls[fixIndex] = axis9Cut
     return ls
+
+
+def FindWaveWidth(data_n, TopPointList, startShift):
+    retval = list()
+    for i in range(len(TopPointList)):
+        topPointX = TopPointList[i]
+
+        if (topPointX - startShift) > 0:
+            topPointX_n = topPointX - startShift
+        else:
+            topPointX_n = 0
+
+        if (topPointX + startShift)  < len(data_n):
+            topPointX_p = topPointX + startShift
+        else:
+            topPointX_p = len(data_n) - 1
+
+        while True :
+            if topPointX_n == 0 : break
+            if data_n[topPointX_n] <= data_n[topPointX_n-1]:
+                topPointX_n -= 1
+            else:
+                break
+
+        while True :
+            if topPointX_p == (len(data_n) - 1) : break
+            if data_n[topPointX_p] <= data_n[topPointX_p+1]:
+                topPointX_p += 1
+            else:
+                break
+
+        retval.append([topPointX_n, topPointX, topPointX_p])
+    return retval
